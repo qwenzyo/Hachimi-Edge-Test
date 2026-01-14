@@ -26,7 +26,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android
-          path: build/*
+          path: |
+              build/*.so
+              build/sha256.json
           
 #  build-windows:
 #    runs-on: windows-latest
