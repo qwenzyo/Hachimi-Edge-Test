@@ -72,7 +72,7 @@ jobs:
 #          DLL_HASH=($(./b3sum.exe build/hachimi.dll | tr -d '\r'))
 #          EXE_HASH=($(./b3sum.exe build/hachimi_installer.exe | tr -d '\r'))
 #          cat <<EOF > build/blake3.json
-          {
+#          {
 #            "hachimi.dll": "$DLL_HASH",
 #            "hachimi_installer.exe": "$EXE_HASH"
 #          }
