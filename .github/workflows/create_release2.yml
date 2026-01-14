@@ -1,0 +1,70 @@
+name: Create Release
+
+on: 
+  workflow_dispatch: # Biar kamu bisa klik tombol "Run Workflow" manual
+
+permissions:
+  contents: write # Wajib biar bisa upload file ke Release
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Cache Rust dependencies
+        uses: swatinem/rust-cache@v2
+
+      - name: Grant execute permission to build script
+        run: chmod +x tools/android/build.sh
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Hachimi for Android
+        env:
+          ANDROID_NDK_ROOT: ${{ env.ANDROID_NDK_LATEST_HOME }} # Pake NDK bawaan GitHub
+        run: |
+          rustup target add armv7-linux-androideabi aarch64-linux-android
+          RELEASE=1 ./tools/android/build.sh
+
+      - name: Upload Android binaries as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hachimi-android-build # Nama artifact-nya
+          path: build/ # Upload semua isi folder build biar aman
+          if-no-files-found: error
+
+  create-release:
+    needs: [build-android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Get release version from Cargo.toml
+        id: get_info
+        run: |
+          # Cara aman ambil versi tanpa perlu Git Tag
+          VERSION=$(grep '^version =' Cargo.toml | head -n 1 | cut -d '"' -f 2)
+          echo "RELEASE_VERSION=v$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: hachimi-android-build
+          path: release_files # Kita kumpulin di folder ini
+
+      - name: Upload binaries to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_VERSION }}
+          name: "Release ${{ env.RELEASE_VERSION }}"
+          body: "Build otomatis Hachimi Edge dengan font custom kamu! ✨"
+          draft: false
+          prerelease: false
+          # Trik pake wildcard biar semua file .so dan json ikut ke-upload
+          files: |
+            release_files/*.so
+            release_files/*.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
