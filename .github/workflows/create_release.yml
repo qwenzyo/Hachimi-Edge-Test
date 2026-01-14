@@ -97,9 +97,7 @@ jobs:
       - name: Get release version
         id: get_info
         run: |
-          VERSION=$(curl -sL "https://raw.githubusercontent.com/${{ github.repository }}/main/Cargo.toml" | \
-            awk '/^\[package\]/{flag=1} flag && /^version/{print $3; exit}' | \
-            tr -d '"')
+          VERSION=$(grep '^version =' Cargo.toml | head -n 1 | cut -d '"' -f 2)
           echo "RELEASE_VERSION=v$VERSION" >> $GITHUB_ENV
 
       - name: Download all build artifacts
