@@ -107,11 +107,11 @@ jobs:
         with:
           path: artifacts
 
-#      - name: Create release notes
-#        run: |
-#          if ! git rev-parse "$LATEST_TAG" >/dev/null 2>&1; then
-#            git tag $LATEST_TAG
-#          fi
+      - name: Create release notes
+        run: |
+          if ! git rev-parse "$LATEST_TAG" >/dev/null 2>&1; then
+            git tag $LATEST_TAG
+          fi
 
 #          PREVIOUS_TAG=$(git describe --tags --abbrev=0 "${LATEST_TAG}^")
 #          if [ -z "$PREVIOUS_TAG" ]; then
