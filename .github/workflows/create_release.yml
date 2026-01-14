@@ -27,8 +27,8 @@ jobs:
         with:
           name: android
           path: |
-              build/*.so
-              build/sha256.json
+            build/*.so
+            build/sha256.json
           
 #  build-windows:
 #    runs-on: windows-latest
